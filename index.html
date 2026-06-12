@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flow Control — Steering Vision-Language-Action Models with Simple Real-Time Inputs</title>
+<meta name="description" content="Flow control steers vision-language-action (VLA) models in real time with simple inputs like a keyboard — no retraining. Crude user inputs convey intent while the VLA keeps actions on its expert distribution.">
+<meta property="og:title" content="Flow Control: Steering VLAs with Simple Real-Time Inputs">
+<meta property="og:description" content="Steer a frozen VLA in real time with a keyboard — no retraining. Kao Lab, UCLA.">
+<meta property="og:image" content="assets/img/hero_poster.jpg">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Playfair+Display:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<header class="top">
+  <div class="page nav">
+    <a class="brand" href="#top"><span class="dot"></span>Flow&nbsp;Control</a>
+    <nav>
+      <ul>
+        <li><a href="#idea">Overview</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#video">Video</a></li>
+        <li><a href="#cite">Cite</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<a id="top"></a>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <canvas id="flowfield"></canvas>
+  <div class="page">
+    <h1 class="title">Flow Control</h1>
+    <p class="subtitle">Steering Vision–Language–Action Models with Simple Real-Time Inputs</p>
+
+    <div class="authors">
+      <a href="https://kaolab.org" target="_blank" rel="noopener">Jonathan C. Kao</a><sup>1,2,3</sup>,
+      Jason Chan<sup>2</sup>,
+      Andy Wang<sup>2</sup>
+      <div class="affils mono"><sup>1</sup>Electrical &amp; Computer Engineering &nbsp; <sup>2</sup>Computer Science &nbsp; <sup>3</sup>Neurobiology &nbsp;·&nbsp; UCLA</div>
+    </div>
+
+    <div class="btnrow">
+      <a class="btn" href="https://arxiv.org/abs/2606.10180" target="_blank" rel="noopener">arXiv</a>
+      <a class="btn" href="#video">Summary Video</a>
+      <a class="btn" href="https://kaolab.org" target="_blank" rel="noopener">More from our lab</a>
+    </div>
+
+    <!-- hero comparison loop -->
+    <div class="herovid">
+      <div class="frame">
+        <span class="divider-mid"></span>
+        <video autoplay muted loop playsinline preload="auto" poster="assets/img/hero_poster.jpg">
+          <source src="assets/video/hero_compare.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="vid-cap"><b>Left:</b> Autonomous zero-shot <em>π</em><sub>0.5</sub>-DROID makes errors when stacking the cups (shown at 4× speed). <b>Right:</b> With flow control, users give arrow key inputs in real-time that help steer zero-shot <em>π</em><sub>0.5</sub>-DROID to successfully stack the cups (real time, 1×). Flow control can be used out-of-the-box (no model fine tuning) with any VLAs using a flow matching head.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IDEA / TL;DR ============ -->
+<section class="block" id="idea">
+  <div class="page">
+    <div class="sec-head"><h2>Overview</h2></div>
+    <p class="lead">
+      <b>Flow control steers a vision-language-action (VLA) model in real time using generic inputs, such as a keyboard.</b>
+      It works out-of-the-box on a frozen policy, without any retraining or fine-tuning. The VLA turns crude user input (like key presses) into an
+      action sampled from the <em>expert action distribution</em> it learned during training, so the resulting motion stays
+      high quality while reflecting user intent. 
+    </p>
+    <div class="chips">
+      <div class="chip"><span class="k">No retraining</span><span class="v">Out-of-the-box</span><span class="d">Steers any frozen flow-matching VLA.</span></div>
+      <div class="chip"><span class="k">High quality</span><span class="v">On-distribution</span><span class="d">Actions stay on the expert distribution.</span></div>
+      <div class="chip"><span class="k">High fidelity</span><span class="v">Follows intent</span><span class="d">Crude inputs reliably convey the user's goal.</span></div>
+    </div>
+    <p class="lead" style="margin-top:32px;margin-bottom:0">
+      We freeze a VLA (here, <em>π</em><sub>0.5</sub>) with a flow-matching action expert and inject the user's input into the flow's initial condition.
+      Because flow matching is a deterministic and invertible ODE, we reason that information about the IC persists in the
+      generated action.
+    </p>
+    <div class="fig-2col" style="margin-top:12px">
+      <div class="figwrap">
+        <img src="assets/img/fig1.png" alt="Flow control overview diagram">
+        <div class="figcap"><b>Overview.</b> A frozen <em>π</em><sub>0.5</sub> VLA. Flow control (red) injects user inputs into the flow-matching action expert to steer the output action chunk.</div>
+      </div>
+      <div class="figwrap">
+        <img src="assets/img/fig2.png" alt="Flow matching versus diffusion">
+        <div class="figcap"><b>Why flow matching.</b> Unlike diffusion, which re-injects noise at each time step, losing information about the initial condition, flow matching is invertible — so a user nudge in the initial condition may carry through to the final action.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="block" id="results">
+  <div class="page">
+    <div class="sec-head"><h2>Results</h2></div>
+
+    <div class="claims">
+
+      <!-- result 1 -->
+      <div class="claim">
+        <div class="claim-txt">
+          <div class="claim-num">RESULT 1</div>
+          <h3>Modifying the flow's initial condition steers the policy.</h3>
+          <p>On an ambiguous two-block task (&ldquo;put the block in the hole&rdquo;), <em>π</em><sub>0.5</sub> autonomously picks the
+          right block <b>85%</b> of the time. 
+	Setting joint&nbsp;1's initial condition redirects it to the left
+          block <b>100%</b> of the time, without
+          degrading pick-and-place success. We later demonstrate flow control on all joints using more complex tasks.</p>
+        </div>
+        <div class="media">
+          <img src="assets/img/fig3.png" alt="Two-block task: setting joint-1's initial condition steers block selection without hurting pick-and-place">
+          <div class="cap">fig 3 · steering via the initial condition</div>
+        </div>
+      </div>
+
+      <!-- result 2 -->
+      <div class="claim">
+        <div class="claim-txt">
+          <div class="claim-num">RESULT 2</div>
+          <h3>Steering stays on-policy.</h3>
+          <p>When the action distribution is multimodal (which block to grab), the input selects the mode the user
+          wants. When the task is unambiguous, the flow-matching head absorbs even <em>discordant</em> inputs into
+          on-policy actions.
+	In this way, steering never breaks the underlying skill.
+	What if the user wanted to do something discordant with a unimodal action distribution? See our Appendix C.</p>
+        </div>
+        <div class="media">
+          <img src="assets/img/fig4.png" alt="Flow fields showing steering acts in multimodal states but is absorbed in unimodal ones">
+          <div class="cap">fig 4 · on-policy steering</div>
+        </div>
+      </div>
+
+      <!-- result 3 -->
+      <div class="claim">
+        <div class="claim-txt">
+          <div class="claim-num">RESULT 3</div>
+          <h3>Users steer the VLA to much higher success, faster.</h3>
+          <p>In a study with 16 participants, keyboard steering lifts Marker-in-Bowl success from
+          <b>53.3% → 99.4%</b> (correcting the VLA's language-following errors) and Cup-Stacking from
+          <b>48.0% → 87.7%</b>, while cutting cup-stacking time <b>30%</b> (50.3&nbsp;s → 35.2&nbsp;s).</p>
+        </div>
+        <div class="media">
+          <img src="assets/img/fig8.png" alt="User study: Marker-in-Bowl and Cup-Stacking tasks, a correction, and completion-time distributions">
+          <div class="cap">fig 8 · user study (n = 16)</div>
+        </div>
+      </div>
+
+      <!-- result 4 -->
+      <div class="claim">
+        <div class="claim-txt">
+          <div class="claim-num">RESULT 4</div>
+          <h3>Flow-control data makes the autonomous policy better.</h3>
+          <p>Because flow-control trajectories are on-policy, they are clean training data. Fine-tuning on
+          <b>60</b> successful flow-control trials (<em>π</em><sub>0.5</sub>-FC) raises <em>autonomous</em>
+          cup-stacking from <b>48% → 100%</b> and drops mean completion time to <b>~22&nbsp;s</b>.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ OVERVIEW VIDEO ============ -->
+<section class="block" id="video">
+  <div class="page">
+    <div class="sec-head"><h2>Overview video</h2></div>
+    <div class="overview-wrap">
+      <div class="frame">
+        <video controls preload="none" playsinline poster="assets/img/overview_poster.jpg">
+          <source src="assets/video/overview.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CITE ============ -->
+<section class="block" id="cite">
+  <div class="page">
+    <div class="sec-head"><h2>Citation</h2></div>
+    <div class="bibcard">
+      <button class="copybtn" onclick="copyBib(this)">Copy</button>
+<pre id="bibtex">@misc{kao2026flowcontrol,
+  title         = {Flow Control: Steering Vision-Language-Action Models
+                   with Simple Real-Time Inputs},
+  author        = {Kao, Jonathan C. and Chan, Jason and Wang, Andy},
+  year          = {2026},
+  eprint        = {2606.10180},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.RO},
+  url           = {https://arxiv.org/abs/2606.10180}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot">
+  <div class="page foot-grid">
+    <div class="muted">
+      <strong style="color:var(--ink);font-weight:600">Flow Control</strong><br>
+      Neural Engineering &amp; Computation Laboratory<br>
+      <a href="https://kaolab.org" target="_blank" rel="noopener">kaolab.org</a> · UCLA
+    </div>
+    <div class="muted mono">© 2026 · UCLA</div>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
