@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Flow Control</title>
-<meta name="description" content="Flow control steers vision-language-action (VLA) models in real time with simple inputs like a keyboard — no retraining. Crude user inputs convey intent while the VLA keeps actions on its expert distribution.">
+<meta name="description" content="Flow control steers vision-language-action (VLA) models in real time with simple inputs like a keyboard — no retraining. Crude user inputs convey intent while the generated actions stay close to the VLA's own actions.">
 <meta property="og:title" content="Flow Control">
 <meta property="og:description" content="Steering Vision–Language–Action Models with Simple Real-Time Inputs">
 <meta property="og:image" content="https://jcykao.github.io/flowcontrol/assets/img/hero_poster.jpg">
@@ -50,10 +50,12 @@
       Jason Chan<sup>2</sup>,
       Andy Wang<sup>2</sup>
       <div class="affils mono"><sup>1</sup>Electrical &amp; Computer Engineering &nbsp; <sup>2</sup>Computer Science &nbsp; <sup>3</sup>Neurobiology &nbsp;·&nbsp; UCLA</div>
+      <div class="venue">Conference on Robot Learning (CoRL) 2026</div>
     </div>
 
     <div class="btnrow">
       <a class="btn" href="https://arxiv.org/abs/2606.10180" target="_blank" rel="noopener">arXiv</a>
+      <a class="btn" href="https://openreview.net/forum?id=hSZ0lT7TCp" target="_blank" rel="noopener">OpenReview</a>
       <a class="btn" href="#video">Summary Video</a>
       <a class="btn" href="https://kaolab.org" target="_blank" rel="noopener">More from our lab</a>
     </div>
@@ -66,7 +68,7 @@
           <source src="assets/video/hero_compare.mp4" type="video/mp4">
         </video>
       </div>
-      <p class="vid-cap"><b>Left:</b> Autonomous zero-shot <em>π</em><sub>0.5</sub>-DROID makes errors when stacking the cups (shown at 4× speed). <b>Right:</b> With flow control, users give arrow key inputs in real-time that help steer zero-shot <em>π</em><sub>0.5</sub>-DROID to successfully stack the cups (real time, 1×). Flow control can be used out-of-the-box (no model fine tuning) with any VLAs using a flow matching head.</p>
+      <p class="vid-cap"><b>Left:</b> Autonomous zero-shot <em>π</em><sub>0.5</sub>-DROID makes errors when stacking the cups (shown at 4× speed). <b>Right:</b> With flow control, users give arrow key inputs in real-time that help steer zero-shot <em>π</em><sub>0.5</sub>-DROID to successfully stack the cups (real time, 1×). Flow control can be used out-of-the-box (no model fine-tuning) with VLAs that use a flow matching action expert.</p>
     </div>
   </div>
 </section>
@@ -77,28 +79,28 @@
     <div class="sec-head"><h2>Overview</h2></div>
     <p class="lead">
       <b>Flow control steers a vision-language-action (VLA) model in real time using generic inputs, such as a keyboard.</b>
-      It works out-of-the-box on a frozen policy, without any retraining or fine-tuning. The VLA turns crude user input (like key presses) into an
-      action sampled from the <em>expert action distribution</em> it learned during training, so the resulting motion stays
-      high quality while reflecting user intent. 
+      It works out-of-the-box on a frozen policy, without any retraining or fine-tuning. The VLA moves crude user input (like keypresses)
+      toward the action distribution it learned during training, so the generated actions reflect user intent while staying
+      close to the VLA's own actions.
     </p>
     <div class="chips">
-      <div class="chip"><span class="k">No retraining</span><span class="v">Out-of-the-box</span><span class="d">Steers any frozen flow-matching VLA.</span></div>
-      <div class="chip"><span class="k">High quality</span><span class="v">On-distribution</span><span class="d">Actions stay on the expert distribution.</span></div>
+      <div class="chip"><span class="k">No retraining</span><span class="v">Out-of-the-box</span><span class="d">Steers a frozen flow matching VLA.</span></div>
+      <div class="chip"><span class="k">High conformity</span><span class="v">Close to the VLA</span><span class="d">Actions stay close to the VLA's own actions.</span></div>
       <div class="chip"><span class="k">High fidelity</span><span class="v">Follows intent</span><span class="d">Crude inputs reliably convey the user's goal.</span></div>
     </div>
     <p class="lead" style="margin-top:32px;margin-bottom:0">
-      We freeze a VLA (here, <em>π</em><sub>0.5</sub>) with a flow-matching action expert and inject the user's input into the flow's initial condition.
-      Because flow matching is a deterministic and invertible ODE, we reason that information about the IC persists in the
+      We freeze a VLA (here, <em>π</em><sub>0.5</sub>) with a flow matching action expert and write the user's input into the flow's initial condition (IC).
+      Because the flow is integrated with a deterministic sampler, information about the IC carries through to the
       generated action.
     </p>
     <div class="fig-2col" style="margin-top:12px">
       <div class="figwrap">
         <img src="assets/img/fig1.png" alt="Flow control overview diagram">
-        <div class="figcap"><b>Overview.</b> A frozen <em>π</em><sub>0.5</sub> VLA. Flow control (red) injects user inputs into the flow-matching action expert to steer the output action chunk.</div>
+        <div class="figcap"><b>Overview.</b> A frozen <em>π</em><sub>0.5</sub> VLA. Flow control (red) injects user inputs into the flow matching action expert to steer the output action chunk.</div>
       </div>
       <div class="figwrap">
-        <img src="assets/img/fig2.png" alt="Flow matching versus diffusion">
-        <div class="figcap"><b>Why flow matching.</b> Unlike diffusion, which re-injects noise at each time step, losing information about the initial condition, flow matching is invertible — so a user nudge in the initial condition may carry through to the final action.</div>
+        <img src="assets/img/fig2.png" alt="Stochastic versus deterministic samplers">
+        <div class="figcap"><b>Why a deterministic sampler.</b> A stochastic sampler, such as the diffusion SDE, injects noise at each time step and loses information about the initial condition. A deterministic sampler, such as the flow matching ODE, is invertible, so a user nudge to the initial condition carries through to the final action.</div>
       </div>
     </div>
   </div>
@@ -119,8 +121,8 @@
           <p>On an ambiguous two-block task (&ldquo;put the block in the hole&rdquo;), <em>π</em><sub>0.5</sub> autonomously picks the
           right block <b>85%</b> of the time. 
 	Setting joint&nbsp;1's initial condition redirects it to the left
-          block <b>100%</b> of the time, without
-          degrading pick-and-place success. We later demonstrate flow control on all joints using more complex tasks.</p>
+          block on nearly <b>100%</b> of trials, and the pick, transport, and place steps still succeed nearly
+          100% of the time. We later demonstrate flow control on all joints using more complex tasks.</p>
         </div>
         <div class="media">
           <img src="assets/img/fig3.png" alt="Two-block task: setting joint-1's initial condition steers block selection without hurting pick-and-place">
@@ -132,16 +134,15 @@
       <div class="claim">
         <div class="claim-txt">
           <div class="claim-num">RESULT 2</div>
-          <h3>Steering stays on-policy.</h3>
+          <h3>Flow control actions stay close to the VLA's action distribution.</h3>
           <p>When the action distribution is multimodal (which block to grab), the input selects the mode the user
-          wants. When the task is unambiguous, the flow-matching head absorbs even <em>discordant</em> inputs into
-          on-policy actions.
-	In this way, steering never breaks the underlying skill.
-	What if the user wanted to do something discordant with a unimodal action distribution? See our Appendix C.</p>
+          wants. When the task is unambiguous, the flow matching action expert transforms even <em>discordant</em> inputs into
+          actions that still complete the task.
+	What if the user wanted to do something discordant with a unimodal action distribution? See our Appendix D.</p>
         </div>
         <div class="media">
           <img src="assets/img/fig4.png" alt="Flow fields showing steering acts in multimodal states but is absorbed in unimodal ones">
-          <div class="cap">fig 4 · on-policy steering</div>
+          <div class="cap">fig 4 · steering in multimodal and unimodal settings</div>
         </div>
       </div>
 
@@ -164,10 +165,10 @@
       <div class="claim">
         <div class="claim-txt">
           <div class="claim-num">RESULT 4</div>
-          <h3>Flow-control data makes the autonomous policy better.</h3>
-          <p>Because flow-control trajectories are on-policy, they are clean training data. Fine-tuning on
-          <b>60</b> successful flow-control trials (<em>π</em><sub>0.5</sub>-FC) raises <em>autonomous</em>
-          cup-stacking from <b>48% → 100%</b> and drops mean completion time to <b>~22&nbsp;s</b>.</p>
+          <h3>Flow control data makes the autonomous policy better.</h3>
+          <p>Because flow control actions stay close to the VLA's action distribution, the trajectories, with their corrections, make good training data. Fine-tuning on
+          <b>60</b> successful flow control trials (<em>π</em><sub>0.5</sub>-FC) raises <em>autonomous</em>
+          cup-stacking success from <b>48% → 100%</b> (25 trials) and lowers the median trial time to <b>22&nbsp;s</b>.</p>
         </div>
       </div>
 
@@ -195,15 +196,13 @@
     <div class="sec-head"><h2>Citation</h2></div>
     <div class="bibcard">
       <button class="copybtn" onclick="copyBib(this)">Copy</button>
-<pre id="bibtex">@misc{kao2026flowcontrol,
-  title         = {Flow Control: Steering Vision-Language-Action Models
-                   with Simple Real-Time Inputs},
-  author        = {Kao, Jonathan C. and Chan, Jason and Wang, Andy},
-  year          = {2026},
-  eprint        = {2606.10180},
-  archivePrefix = {arXiv},
-  primaryClass  = {cs.RO},
-  url           = {https://arxiv.org/abs/2606.10180}
+<pre id="bibtex">@inproceedings{kao2026flowcontrol,
+  title     = {Flow Control: Steering Vision-Language-Action Models
+               with Simple Real-Time Inputs},
+  author    = {Kao, Jonathan C. and Chan, Jason and Wang, Andy},
+  booktitle = {Proceedings of the 10th Conference on Robot Learning (CoRL)},
+  year      = {2026},
+  url       = {https://arxiv.org/abs/2606.10180}
 }</pre>
     </div>
   </div>

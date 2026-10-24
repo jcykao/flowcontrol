@@ -74,6 +74,7 @@ h1.title{
 .authors a:hover{border-color:var(--ink)}
 .authors sup{font-size:10px;color:var(--muted)}
 .affils{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.6}
+.venue{margin-top:14px;font-size:15px;font-weight:600;letter-spacing:.01em;color:var(--accent)}
 
 /* button row */
 .btnrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
